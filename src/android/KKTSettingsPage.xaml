@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="RD_AAOW.KKTSettingsPage">
+
+	<StackLayout>
+
+		<ScrollView x:Name="KKTSettingsContainer">
+			<StackLayout Orientation="Vertical" HorizontalOptions="Fill">
+
+				<Label x:Name="KKTSerialLabel" />
+				<Editor x:Name="KKTSerialField" />
+
+				<Label x:Name="KKTOwnerLabel" />
+				<Editor x:Name="KKTOwnerField" />
+
+				<Label x:Name="KKTOwnerINNLabel" />
+				<Editor x:Name="KKTOwnerINNField" />
+
+				<Label x:Name="KKTPlacementLabel" />
+				<Editor x:Name="KKTPlacementField" />
+
+				<Label x:Name="KKTOwnerContactsLabel" />
+				<Editor x:Name="KKTOwnerContactsField" />
+
+				<StackLayout Orientation="Horizontal" HorizontalOptions="Fill">
+					<Label x:Name="FNExpirationDateLabel" VerticalOptions="Center" />
+					<DatePicker x:Name="FNExpirationDateField" VerticalOptions="Center" />
+					<Button x:Name="FNExpirationDateFromCBButton" VerticalOptions="Center" />
+				</StackLayout>
+
+				<StackLayout Orientation="Horizontal" HorizontalOptions="Fill">
+					<Switch x:Name="FNExpirationFlag" VerticalOptions="Center" />
+					<Label x:Name="FNExpirationFlagLabel" VerticalOptions="Center" />
+				</StackLayout>
+
+				<Label x:Name="OFDVariantLabel" VerticalOptions="Center" />
+				<Button x:Name="OFDVariantButton" VerticalOptions="Center" />
+
+				<StackLayout Orientation="Horizontal" HorizontalOptions="Fill">
+					<Label x:Name="OFDExpirationDateLabel" VerticalOptions="Center" />
+					<DatePicker x:Name="OFDExpirationDateField" VerticalOptions="Center" />
+					<Button x:Name="OFDExpirationDateFromCBButton" VerticalOptions="Center" />
+				</StackLayout>
+
+			</StackLayout>
+		</ScrollView>
+
+		<BoxView VerticalOptions="Center" HorizontalOptions="Center" HeightRequest="1" 
+				WidthRequest="200" Color="#505050" Margin="10" />
+
+		<Button x:Name="ApplyButton" />
+
+	</StackLayout>
+</ContentPage>

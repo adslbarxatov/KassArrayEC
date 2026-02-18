@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="RD_AAOW.SettingsPage">
+
+	<ScrollView>
+		<StackLayout>
+
+			<Label />
+
+			<Label x:Name="ThresholdTipLabel" />
+			<Label />
+
+			<Label x:Name="YellowThresholdLabel" VerticalOptions="Center" />
+			<StackLayout Orientation="Horizontal">
+				<Button x:Name="YellowThresholdInc" VerticalOptions="Center" />
+				<Label x:Name="YellowThresholdField" VerticalOptions="Center" />
+				<Button x:Name="YellowThresholdDec" VerticalOptions="Center" />
+			</StackLayout>
+
+			<BoxView VerticalOptions="Center" HorizontalOptions="Center" HeightRequest="1" 
+					WidthRequest="100" Color="#505050" Margin="30" />
+
+			<Label x:Name="RedThresholdLabel" VerticalOptions="Center" />
+			<StackLayout Orientation="Horizontal">
+				<Button x:Name="RedThresholdInc" VerticalOptions="Center" />
+				<Label x:Name="RedThresholdField" VerticalOptions="Center" />
+				<Button x:Name="RedThresholdDec" VerticalOptions="Center" />
+			</StackLayout>
+
+			<BoxView VerticalOptions="Center" HorizontalOptions="Center" HeightRequest="1" 
+					WidthRequest="100" Color="#505050" Margin="30" />
+
+			<Label x:Name="RestartTipLabel" />
+			<Label />
+
+			<StackLayout Orientation="Horizontal">
+				<Label x:Name="FontSizeLabel" VerticalOptions="Center" />
+
+				<Button x:Name="FontSizeInc" VerticalOptions="Center" />
+				<Label x:Name="FontSizeField" VerticalOptions="Center" />
+				<Button x:Name="FontSizeDec" VerticalOptions="Center" />
+			</StackLayout>
+			<Label x:Name="FontSizeTipLabel" />
+
+			<Label />
+
+		</StackLayout>
+	</ScrollView>
+</ContentPage>

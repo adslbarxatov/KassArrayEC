@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="RD_AAOW.KKTListPage">
+
+	<StackLayout>
+
+		<StackLayout Orientation="Horizontal" HorizontalOptions="Center">
+			<Button x:Name="FindButton" VerticalOptions="Center" />
+
+			<Label Text="  |  " VerticalOptions="Center" />
+
+			<Button x:Name="AddKKTButton" VerticalOptions="Center" />
+			<Button x:Name="MenuButton" VerticalOptions="Center" />
+		</StackLayout>
+
+		<Label x:Name="CountLabel" />
+
+		<BoxView VerticalOptions="Center" HorizontalOptions="Center" HeightRequest="1" 
+			WidthRequest="200" Color="#505050" Margin="10" />
+
+		<ScrollView x:Name="KKTListContainer">
+			<StackLayout Orientation="Vertical" x:Name="KKTListField" />
+		</ScrollView>
+
+		<BoxView VerticalOptions="Center" HorizontalOptions="Center" HeightRequest="1" 
+			WidthRequest="200" Color="#505050" Margin="10" />
+
+	</StackLayout>
+</ContentPage>
