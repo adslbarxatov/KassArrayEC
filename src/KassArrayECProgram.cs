@@ -27,10 +27,10 @@ namespace RD_AAOW
 				return;
 
 			// Проверка запуска единственной копии
-			if (!RDGenerics.IsAppInstanceUnique (false, KassArrayDB::RD_AAOW.ProgramDescription.KassArrayECAlias))
+			if (!RDGenerics.IsAppInstanceUnique (false/*, KassArrayDB::RD_AAOW.ProgramDescription.KassArray ECAlias*/))
 				{
 				RDInterface.MessageBox (RDMessageFlags.Warning | RDMessageFlags.LockSmallSize,
-					"Программа " + ProgramDescription.AssemblyMainName + KassArrayDB::RD_AAOW.ProgramDescription.KassArrayECAlias +
+					"Программа " + ProgramDescription.AssemblyMainName + /*KassArrayDB::RD_AAOW.ProgramDescription.KassArray ECAlias +*/
 					" уже запущена." + RDLocale.RNRN + "Закройте запущенный экземпляр и повторите попытку");
 
 				try
@@ -49,25 +49,21 @@ namespace RD_AAOW
 			if (!RDGenerics.AppHasAccessRights (true, false))
 				return;
 
-			if (!RDGenerics.StartedFromMSStore &&
-				!RDGenerics.CheckLibrariesExistence (ProgramDescription.AssemblyLibraries, true))
-				return;
+			if (!RDGenerics.StartedFromMSStore)
+				{
+				if (!RDGenerics.CheckLibrariesExistence (ProgramDescription.AssemblyLibraries, true))
+					return;
+
+				if (!LibraryProtocolChecker.CheckProtocolVersion (ProgramDescription.AssemblyDLLProtocol,
+					KassArrayDB::RD_AAOW.ProgramDescription.KassArrayDBDLL))
+					return;
+				}
 
 			// Отображение справки и запроса на принятие Политики
 			if (!RDInterface.AcceptEULA ())
 				return;
 			if (!RDInterface.ShowAbout (true))
 				RDGenerics.RegisterFileAssociations (true);
-
-			/*RDInterface.ShowAbout (true);
-
-			// Отдельная обработка расширений, в обход ответа ShowAbout из верхнего приложения
-			const string ls = KassArrayDB::RD_AAOW.ProgramDescription.KassArrayECAlias + RDAboutForm.LastShownVersionKey;
-			if (RDGenerics.GetAppRegistryValue (ls) != ProgramDescription.AssemblyVersion)
-				{
-				RDGenerics.RegisterFileAssociations (true);
-				RDGenerics.SetAppRegistryValue (ls, ProgramDescription.AssemblyVersion);
-				}*/
 
 			// Запуск
 			if (args.Length > 0)

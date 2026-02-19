@@ -51,11 +51,11 @@ namespace RD_AAOW
 				RDLocale.CurrentLanguage = RDLanguages.ru_ru;
 			RDGenerics.LoadWindowDimensions (this);
 
-			if (!RDGenerics.CheckLibrariesVersions (ProgramDescription.AssemblyLibraries, true))
+			/*if (!RDGenerics.CheckLibrariesVersions (ProgramDescription.AssemblyLibraries, true))
 				{
 				closeWindowOnError = true;
 				return;
-				}
+				}*/
 
 			getValuesFromRegistration = GetValuesFromRegistration;
 			kb = new KassArrayDB::RD_AAOW.KnowledgeBase ();
