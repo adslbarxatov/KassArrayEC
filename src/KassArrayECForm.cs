@@ -51,12 +51,6 @@ namespace RD_AAOW
 				RDLocale.CurrentLanguage = RDLanguages.ru_ru;
 			RDGenerics.LoadWindowDimensions (this);
 
-			/*if (!RDGenerics.CheckLibrariesVersions (ProgramDescription.AssemblyLibraries, true))
-				{
-				closeWindowOnError = true;
-				return;
-				}*/
-
 			getValuesFromRegistration = GetValuesFromRegistration;
 			kb = new KassArrayDB::RD_AAOW.KnowledgeBase ();
 			hideWindow = HideWindow;
@@ -85,12 +79,32 @@ namespace RD_AAOW
 			// Подключение к прослушиванию системного события вызова окна
 			if (!RDGenerics.StartedFromMSStore)
 				{
-				try
+				/*try
 					{
 					ewh = EventWaitHandle.OpenExisting (KassArrayDB::RD_AAOW.ProgramDescription.AssemblyMainName +
 						KassArrayDB::RD_AAOW.ProgramDescription.KassArrayECAlias);
 					}
-				catch { }
+				catch { }*/
+
+				bool ewhFailed = false;
+				try
+					{
+					ewh = EventWaitHandle.OpenExisting (ProgramDescription.AssemblyMainName);
+					}
+				catch
+					{
+					ewhFailed = true;
+					}
+				if (ewhFailed)
+					{
+					try
+						{
+						ewh = new EventWaitHandle (false, EventResetMode.AutoReset,
+							ProgramDescription.AssemblyMainName);
+						}
+					catch { }
+					}
+
 				ShowWindowTimer.Enabled = true;
 				}
 
