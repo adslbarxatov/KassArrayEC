@@ -17,6 +17,7 @@
 				<Label x:Name="YellowThresholdField" VerticalOptions="Center" />
 				<Button x:Name="YellowThresholdDec" VerticalOptions="Center" />
 			</StackLayout>
+			<Label x:Name="YellowThresholdTip" VerticalOptions="Center" />
 
 			<BoxView VerticalOptions="Center" HorizontalOptions="Center" HeightRequest="1" 
 					WidthRequest="100" Color="#505050" Margin="30" />
@@ -27,6 +28,7 @@
 				<Label x:Name="RedThresholdField" VerticalOptions="Center" />
 				<Button x:Name="RedThresholdDec" VerticalOptions="Center" />
 			</StackLayout>
+			<Label x:Name="RedThresholdTip" VerticalOptions="Center" />
 
 			<BoxView VerticalOptions="Center" HorizontalOptions="Center" HeightRequest="1" 
 					WidthRequest="100" Color="#505050" Margin="30" />

@@ -79,13 +79,6 @@ namespace RD_AAOW
 			// Подключение к прослушиванию системного события вызова окна
 			if (!RDGenerics.StartedFromMSStore)
 				{
-				/*try
-					{
-					ewh = EventWaitHandle.OpenExisting (KassArrayDB::RD_AAOW.ProgramDescription.AssemblyMainName +
-						KassArrayDB::RD_AAOW.ProgramDescription.KassArrayECAlias);
-					}
-				catch { }*/
-
 				bool ewhFailed = false;
 				try
 					{
@@ -282,7 +275,6 @@ namespace RD_AAOW
 				l.Click += KKTList_LabelClicked;
 				l.Font = kktFont;
 
-				/*l.Text = model + "  |  " + values[1];*/
 				if (values[10] == "1")
 					l.Text = model + "  |  " + values[1];
 				else
@@ -531,17 +523,6 @@ namespace RD_AAOW
 				return;
 				}
 
-			/*string[] values = kl.GetRequisites (selectedIndex);
-			KassArrayECOwner kaeco = new KassArrayECOwner (values[1], values[9], values[2]);
-			bool cancel = kaeco.Cancelled;
-			kaeco.Dispose ();
-
-			if (cancel)
-				return;
-
-			kl.UpdateOwnerData (selectedIndex, kaeco.NewOwner.KKTOwner, kaeco.NewOwner.KKTOwnerINN,
-				kaeco.NewOwner.KKTOwnerContact);
-			ReloadList ();*/
 			KassArrayECEntry kaec = new KassArrayECEntry (selectedIndex, kl);
 			if (!kaec.Cancelled)
 				ReloadList ();
@@ -558,13 +539,6 @@ namespace RD_AAOW
 		// Экспорт данных
 		private void MExport_Click (object sender, EventArgs e)
 			{
-			/*if (kl.ItemsCount < 1)
-				{
-				RDInterface.MessageBox (RDMessageFlags.Warning | RDMessageFlags.CenterText,
-					"Нет сведений для экспорта", 1000);
-				return;
-				}*/
-
 			string[] values = kl.GetRequisites (selectedIndex);
 
 			KassArrayECExport kaece = new KassArrayECExport (kl, values == null ? "" : values[1], kb);

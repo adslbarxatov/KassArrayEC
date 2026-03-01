@@ -26,25 +26,6 @@ namespace RD_AAOW
 			if (!RDLocale.IsXPUNClassAcceptable)
 				return;
 
-			/*// Проверка запуска единственной копии
-			if (!RDGenerics.IsAppInstanceUnique (false))
-				{
-				RDInterface.MessageBox (RDMessageFlags.Warning | RDMessageFlags.LockSmallSize,
-					"Программа " + ProgramDescription.AssemblyMainName + 
-					" уже запущена." + RDLocale.RNRN + "Закройте запущенный экземпляр и повторите попытку");
-
-				try
-					{
-					EventWaitHandle ewh =
-						EventWaitHandle.OpenExisting (KassArrayDB::RD_AAOW.ProgramDescription.AssemblyMainName +
-						KassArrayDB::RD_AAOW.ProgramDescription.KassArrayECAlias);
-					ewh.Set ();
-					}
-				catch { }
-
-				return;
-				}*/
-
 			// Проверка запуска единственной копии (псевдоним не должен совпадать с именем EventWaitHandle)
 			if (!RDGenerics.IsAppInstanceUnique (false, "_L"))
 				{
