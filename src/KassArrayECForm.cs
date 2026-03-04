@@ -377,7 +377,10 @@ namespace RD_AAOW
 
 			InfoLabel.Text += "Срок действия ФН: " + values[4] + RDLocale.RN;
 			InfoLabel.Text += "  Осталось дней: " + values[5] + RDLocale.RN;
+			if (values[12] != KAECList.NoOFDAlias)
+				InfoLabel.Text += "  Активирован: " + values[12] + RDLocale.RN;
 
+			InfoLabel.Text += RDLocale.RN;
 			if (values[6] == KAECList.UnknownOFDAlias)
 				{
 				InfoLabel.Text += "Состояние ОФД: неизвестно";
@@ -385,7 +388,9 @@ namespace RD_AAOW
 			else if (values[6] != KAECList.NoOFDAlias)
 				{
 				InfoLabel.Text += "Срок тарифа ОФД: " + values[6] + RDLocale.RN;
-				InfoLabel.Text += "  Осталось дней: " + values[7];
+				InfoLabel.Text += "  Осталось дней: " + values[7] + RDLocale.RN;
+				if (values[14] != KAECList.NoOFDAlias)
+					InfoLabel.Text += "  Активирован: " + values[14];
 				}
 
 			int fnDays = kl.GetDaysToFNExpiration (selectedIndex);
