@@ -56,8 +56,8 @@ namespace RD_AAOW
 			hideWindow = HideWindow;
 
 			this.Text = RDGenerics.DefaultAssemblyVisibleName;
-			TipLabel.Text = "ККТ в списке отсортированы по порядку истечения сроков жизни ФН, начиная с тех, " +
-				"замена которых потребуется раньше всех (относительно текущей даты)";
+			/*TipLabel.Text = "ККТ в списке отсортированы по порядку истечения сроков жизни ФН, начиная с тех, " +
+				"замена которых потребуется раньше всех (относительно текущей даты)";*/
 
 			if (KAECList.OverrideCloseButton)
 				MExit.Text = "Свернуть";
@@ -550,6 +550,14 @@ namespace RD_AAOW
 			if (kaece.ReloadRequired)
 				ReloadList ();
 			kaece.Dispose ();
+			}
+
+		// Короткая подсказка по сортировке списка
+		private void ShortTipButton_Click (object sender, EventArgs e)
+			{
+			RDInterface.MessageBox (RDMessageFlags.Information | RDMessageFlags.LockSmallSize,
+				"ККТ в списке отсортированы по порядку истечения сроков жизни ФН, начиная с тех, " +
+				"замена которых потребуется раньше всех (относительно текущей даты)");
 			}
 		}
 	}
