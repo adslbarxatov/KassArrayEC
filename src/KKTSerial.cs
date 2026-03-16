@@ -232,6 +232,7 @@ namespace RD_AAOW
 			'A',
 			'B',
 			'C',
+			'D',
 			];
 		private byte[][] tsMapIndexes = [
 			[1, 4, 5],
@@ -243,6 +244,7 @@ namespace RD_AAOW
 			[10],
 			[11],
 			[12],
+			[13],
 			];
 
 		/// <summary>
