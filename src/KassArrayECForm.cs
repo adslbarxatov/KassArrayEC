@@ -56,8 +56,6 @@ namespace RD_AAOW
 			hideWindow = HideWindow;
 
 			this.Text = RDGenerics.DefaultAssemblyVisibleName;
-			/*TipLabel.Text = "ККТ в списке отсортированы по порядку истечения сроков жизни ФН, начиная с тех, " +
-				"замена которых потребуется раньше всех (относительно текущей даты)";*/
 
 			if (KAECList.OverrideCloseButton)
 				MExit.Text = "Свернуть";
