@@ -47,8 +47,8 @@ namespace RD_AAOW
 			{
 			// Инициализация
 			InitializeComponent ();
-			if (!RDLocale.IsCurrentLanguageRuRu)
-				RDLocale.CurrentLanguage = RDLanguages.ru_ru;
+			/*if (!RDLocale.IsCurrentLanguageRuRu)
+				RDLocale.CurrentLanguage = RDLanguages.ru_ru;*/
 			RDGenerics.LoadWindowDimensions (this);
 
 			getValuesFromRegistration = GetValuesFromRegistration;
@@ -390,10 +390,6 @@ namespace RD_AAOW
 				if (values[14] != KAECList.NoOFDAlias)
 					InfoLabel.Text += "  Активирован: " + values[14];
 				}
-
-			/*// Номера телефонов – проверка
-			for (int i = 15; i < values.Length; i++)
-				InfoLabel.Text += (values[i] + RDLocale.RN);*/
 
 			int fnDays = kl.GetDaysToFNExpiration (selectedIndex);
 			int ofdDays = kl.GetDaysToOFDExpiration (selectedIndex);

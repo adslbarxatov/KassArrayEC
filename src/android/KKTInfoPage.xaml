@@ -9,7 +9,7 @@
 			<Label />
 
 			<Label x:Name="InfoLabel" HorizontalOptions="Fill" />
-			<StackLayout x:Name="PhonesField" HorizontalOptions="Center" Orientation="Vertical" />
+			<StackLayout x:Name="PhonesField" HorizontalOptions="Center" Orientation="Horizontal" />
 
 			<BoxView VerticalOptions="Center" HorizontalOptions="Center" HeightRequest="1" 
 					WidthRequest="100" Color="#505050" Margin="10" />
