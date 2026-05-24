@@ -51,7 +51,7 @@ namespace RD_AAOW
 				if (!RDGenerics.CheckLibrariesExistence (ProgramDescription.AssemblyLibraries, true))
 					return;
 
-				if (!LibraryProtocolChecker.CheckProtocolVersion (ProgramDescription.AssemblyDLLProtocol,
+				if (!LibrarySupport.CheckProtocolVersion (ProgramDescription.AssemblyDLLProtocol,
 					KassArrayDB::RD_AAOW.ProgramDescription.KassArrayDBDLL))
 					return;
 				}

@@ -243,8 +243,10 @@ namespace RD_AAOW
 			// Формирование контролов
 			for (uint i = 0; i < kl.ItemsCount; i++)
 				{
-				string[] values = kl.GetRequisites (i);
-				string model = kb.KKTNumbers.GetKKTModel (values[0]);
+				/*string[] values = kl.GetRequisites (i);*/
+				KAECFoundRequisites? v = kl.GetRequisites (i);
+				KAECFoundRequisites fr = v.Value;
+				string model = kb.KKTNumbers.GetKKTModel (/*values[0]*/ fr.KKTSerial);
 
 				// Сборка контрола
 				Label l = new Label ();
@@ -273,10 +275,11 @@ namespace RD_AAOW
 				l.Click += KKTList_LabelClicked;
 				l.Font = kktFont;
 
-				if (values[10] == "1")
-					l.Text = model + "  |  " + values[1];
+				/*if (values[10] == "1")*/
+				if (fr.IsINNSet)
+					l.Text = model + "  |  " + /*values[1]*/ fr.KKTOwner;
 				else
-					l.Text = model + "  |  [ИНН не задан] " + values[1];
+					l.Text = model + "  |  [ИНН не задан] " + /*values[1]*/ fr.KKTOwner;
 
 				l.Margin = kktMargin;
 				l.Padding = kktMargin;
@@ -363,32 +366,34 @@ namespace RD_AAOW
 				return;
 				}
 
-			string[] values = kl.GetRequisites (selectedIndex);
-			string model = kb.KKTNumbers.GetKKTModel (values[0]);
+			/*string[] values = kl.GetRequisites (selectedIndex);*/
+			KAECFoundRequisites? v = kl.GetRequisites (selectedIndex);
+			KAECFoundRequisites fr = v.Value;
+			/*string model = kb.KKTNumbers.GetKKTModel (values[0]);*/
 
-			InfoLabel.Text = "Заводской номер ККТ: " + values[0] + RDLocale.RN;
-			InfoLabel.Text += "Модель ККТ: " + model + RDLocale.RN;
-			InfoLabel.Text += "Владелец: " + values[1] + RDLocale.RNRN;
+			InfoLabel.Text = "Заводской номер ККТ: " + /*values[0]*/ fr.KKTSerial + RDLocale.RN;
+			InfoLabel.Text += "Модель ККТ: " + /*model*/ kb.KKTNumbers.GetKKTModel (fr.KKTSerial) + RDLocale.RN;
+			InfoLabel.Text += "Владелец: " + /*values[1]*/ fr.KKTOwner + RDLocale.RNRN;
 
-			InfoLabel.Text += "Местоположение: " + values[3] + RDLocale.RN;
-			InfoLabel.Text += "Контактные данные: " + values[2] + RDLocale.RNRN;
+			InfoLabel.Text += "Местоположение: " + /*values[3]*/ fr.KKTPlacement + RDLocale.RN;
+			InfoLabel.Text += "Контактные данные: " + /*values[2]*/ fr.KKTOwnerContact + RDLocale.RNRN;
 
-			InfoLabel.Text += "Срок действия ФН: " + values[4] + RDLocale.RN;
-			InfoLabel.Text += "  Осталось дней: " + values[5] + RDLocale.RN;
-			if (values[12] != KAECList.NoOFDAlias)
-				InfoLabel.Text += "  Активирован: " + values[12] + RDLocale.RN;
+			InfoLabel.Text += "Срок действия ФН: " + /*values[4]*/ fr.FNExpirationDate + RDLocale.RN;
+			InfoLabel.Text += "  Осталось дней: " + /*values[5]*/ fr.DaysToFNExpiration.ToString () + RDLocale.RN;
+			if (/*values[12]*/ fr.FNActivationDate != KAECList.NoOFDAlias)
+				InfoLabel.Text += "  Активирован: " + /*values[12]*/ fr.FNActivationDate + RDLocale.RN;
 
 			InfoLabel.Text += RDLocale.RN;
-			if (values[6] == KAECList.UnknownOFDAlias)
+			if (/*values[6]*/ fr.OFDExpirationDate == KAECList.UnknownOFDAlias)
 				{
 				InfoLabel.Text += "Состояние ОФД: неизвестно";
 				}
-			else if (values[6] != KAECList.NoOFDAlias)
+			else if (/*values[6]*/ fr.OFDExpirationDate != KAECList.NoOFDAlias)
 				{
-				InfoLabel.Text += "Срок тарифа ОФД: " + values[6] + RDLocale.RN;
-				InfoLabel.Text += "  Осталось дней: " + values[7] + RDLocale.RN;
-				if (values[14] != KAECList.NoOFDAlias)
-					InfoLabel.Text += "  Активирован: " + values[14];
+				InfoLabel.Text += "Срок тарифа ОФД: " + /*values[6]*/ fr.OFDExpirationDate + RDLocale.RN;
+				InfoLabel.Text += "  Осталось дней: " + /*values[7]*/ fr.DaysToOFDExpiration.ToString () + RDLocale.RN;
+				if (/*values[14]*/ fr.OFDActivationDate != KAECList.NoOFDAlias)
+					InfoLabel.Text += "  Активирован: " + /*values[14]*/ fr.OFDActivationDate;
 				}
 
 			int fnDays = kl.GetDaysToFNExpiration (selectedIndex);
@@ -536,17 +541,26 @@ namespace RD_AAOW
 		private void MSettings_Click (object sender, EventArgs e)
 			{
 			_ = new KassArrayECSettings ();
+
 			ReloadList ();
+
+			if (KAECList.OverrideCloseButton)
+				MExit.Text = "Свернуть";
+			else
+				MExit.Text = "Выход";
 			}
 
 		// Экспорт данных
 		private void MExport_Click (object sender, EventArgs e)
 			{
-			string[] values = kl.GetRequisites (selectedIndex);
+			/*string[] values = kl.GetRequisites (selectedIndex);*/
+			KAECFoundRequisites? v = kl.GetRequisites (selectedIndex);
 
-			KassArrayECExport kaece = new KassArrayECExport (kl, values == null ? "" : values[1], kb);
+			/*KassArrayECExport kaece = new KassArrayECExport (kl, values == null ? "" : values[1], kb);*/
+			KassArrayECExport kaece = new KassArrayECExport (kl, v == null ? "" : v.Value.KKTOwner, kb);
 			if (kaece.ReloadRequired)
 				ReloadList ();
+
 			kaece.Dispose ();
 			}
 
@@ -556,6 +570,14 @@ namespace RD_AAOW
 			RDInterface.MessageBox (RDMessageFlags.Information | RDMessageFlags.LockSmallSize,
 				"ККТ в списке отсортированы по порядку истечения сроков жизни ФН, начиная с тех, " +
 				"замена которых потребуется раньше всех (относительно текущей даты)");
+			}
+
+		// Перезапрос списка ККТ из файла
+		private void MUpdate_Click (object sender, EventArgs e)
+			{
+			kl.Dispose ();
+			kl = new KAECList ();
+			ReloadList ();
 			}
 		}
 	}

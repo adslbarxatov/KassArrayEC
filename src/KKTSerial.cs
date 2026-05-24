@@ -20,7 +20,8 @@ namespace RD_AAOW
 		SerialIsKnown = 0x01,
 
 		/// <summary>
-		/// Модель имеет то же название в реестре, но сигнатура ЗН и реализация отличаются
+		/// Модель имеет то же название в реестре (не порождает отдельной строки),
+		/// но сигнатура ЗН и реализация отличаются
 		/// </summary>
 		DifferentImplementations = 0x02,
 
@@ -43,6 +44,12 @@ namespace RD_AAOW
 		/// Модель подлежит исключению из реестра
 		/// </summary>
 		ShouldBeRemovedFromRegistry = 0x20,
+
+		/// <summary>
+		/// Модель подлежит исключению из реестра в связи с отсутствием поддержки
+		/// актуальных версий ФФД (извлекается косвенным путём)
+		/// </summary>
+		DoesntSupportActualFFD = 0x8000,
 		}
 
 	/// <summary>
@@ -217,6 +224,7 @@ namespace RD_AAOW
 			0,	// Точно известные сигнатуры
 			0,	// Исключены из реестра
 			0,	// Поддерживаются ТС ПИоТ
+			0,	// Не поддерживают актуальные версии ФФД
 			];
 
 		private int lastSearchOffset = 0;
@@ -289,9 +297,9 @@ namespace RD_AAOW
 				if (values[2].Length != 6)
 					throw new Exception ("Invalid data at point 3, debug is required");
 
-				// Флаги
-				KKTSerialFlags flags = (KKTSerialFlags)byte.Parse (values[4], RDGenerics.HexNumberStyle);
-				serialFlags.Add (flags);
+				// Флаги (дополняются и прописываются ниже)
+				KKTSerialFlags flags = (KKTSerialFlags)uint.Parse (values[4], RDGenerics.HexNumberStyle);
+				/*serialFlags.Add (flags);*/
 
 				// > Общее число моделей
 				if (!flags.HasFlag (KKTSerialFlags.DifferentImplementations))
@@ -419,7 +427,14 @@ namespace RD_AAOW
 					serialSamples.Add ("\x2");
 					serialOffsets.Add (0);
 					}
+
 				ffdSupport.Add (state);
+				if (!state.HasFlag (FFDSupportStates.Supported12))
+					{
+					flags |= KKTSerialFlags.DoesntSupportActualFFD;
+					registryStats[5 + ffdNames.Length]++;
+					}
+				serialFlags.Add (flags);
 
 				// > Точно известные сигнатуры
 				if (flags.HasFlag (KKTSerialFlags.SerialIsKnown) &&
@@ -458,7 +473,8 @@ namespace RD_AAOW
 
 						serialTSPI.Add (tsLine);
 
-						registryStats[7]++;
+						// > Имеющие ТС ПИоТ
+						registryStats[4 + ffdNames.Length]++;
 						break;
 					}
 				}
@@ -598,8 +614,10 @@ namespace RD_AAOW
 				res += "! исключена из реестра ФНС !";
 			else if (serialFlags[i].HasFlag (KKTSerialFlags.ShouldBeRemovedFromRegistry))
 				res += "! может быть исключена из реестра ФНС в ближайшее время !";
-			else if (!s.Contains (ffdNames[2]))
-				res += "! присутствует в реестре ФНС, но не обновляется !";
+			else if (serialFlags[i].HasFlag (KKTSerialFlags.DoesntSupportActualFFD))
+				res += "! может быть исключена из реестра ФНС с 1 марта 2027 года !";
+			/*else if (!s.Contains (ffdNames[2]))
+				res += "! присутствует в реестре ФНС, но не обновляется !";*/
 			else
 				res += "присутствует в реестре ФНС";
 
@@ -773,6 +791,8 @@ namespace RD_AAOW
 
 				res += RDLocale.RN + "Исключены из реестра: " +
 					registryStats[ffdNames.Length + 3];
+				res += RDLocale.RN + "Могут быть исключены " + RDLocale.RN +
+					"с 1 марта 2027 года: " + registryStats[ffdNames.Length + 5];
 #else
 				string res = "\tМоделей ККТ в реестре ФНС" + RDLocale.RN +
 					"\t(на " + ProgramDescription.AssemblyLastUpdate + "):\t" +
@@ -793,6 +813,8 @@ namespace RD_AAOW
 
 				res += RDLocale.RN + "\tИсключены из реестра:\t" +
 					registryStats[ffdNames.Length + 3];
+				res += RDLocale.RN + "\tМогут быть исключены " + RDLocale.RN +
+					"\tс 1 марта 2027 года:\t\t" + registryStats[ffdNames.Length + 5];
 #endif
 
 				return res;
@@ -824,6 +846,7 @@ namespace RD_AAOW
 					!serialFlags[i].HasFlag (KKTSerialFlags.NameChanged) &&
 					!serialFlags[i].HasFlag (KKTSerialFlags.RemovedFromRegistry))
 					models.Add (names[i]);
+			// DoesntSupportActualFFD тоже скоро могут оказаться здесь
 
 			return models.ToArray ();
 			}
