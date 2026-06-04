@@ -47,8 +47,6 @@ namespace RD_AAOW
 			{
 			// Инициализация
 			InitializeComponent ();
-			/*if (!RDLocale.IsCurrentLanguageRuRu)
-				RDLocale.CurrentLanguage = RDLanguages.ru_ru;*/
 			RDGenerics.LoadWindowDimensions (this);
 
 			getValuesFromRegistration = GetValuesFromRegistration;
@@ -209,7 +207,7 @@ namespace RD_AAOW
 			// Защита от лишних действий
 			if (this.Visible && (this.WindowState != FormWindowState.Minimized) || !ewh.WaitOne (100))
 				{
-				ewh.Reset ();   // Удаление задвоенных вызовов
+				ewh.Reset ();	// Удаление задвоенных вызовов
 				return;
 				}
 
@@ -243,10 +241,9 @@ namespace RD_AAOW
 			// Формирование контролов
 			for (uint i = 0; i < kl.ItemsCount; i++)
 				{
-				/*string[] values = kl.GetRequisites (i);*/
 				KAECFoundRequisites? v = kl.GetRequisites (i);
 				KAECFoundRequisites fr = v.Value;
-				string model = kb.KKTNumbers.GetKKTModel (/*values[0]*/ fr.KKTSerial);
+				string model = kb.KKTNumbers.GetKKTModel (fr.KKTSerial);
 
 				// Сборка контрола
 				Label l = new Label ();
@@ -275,11 +272,10 @@ namespace RD_AAOW
 				l.Click += KKTList_LabelClicked;
 				l.Font = kktFont;
 
-				/*if (values[10] == "1")*/
 				if (fr.IsINNSet)
-					l.Text = model + "  |  " + /*values[1]*/ fr.KKTOwner;
+					l.Text = model + "  |  " + fr.KKTOwner;
 				else
-					l.Text = model + "  |  [ИНН не задан] " + /*values[1]*/ fr.KKTOwner;
+					l.Text = model + "  |  [ИНН не задан] " + fr.KKTOwner;
 
 				l.Margin = kktMargin;
 				l.Padding = kktMargin;
@@ -366,34 +362,32 @@ namespace RD_AAOW
 				return;
 				}
 
-			/*string[] values = kl.GetRequisites (selectedIndex);*/
 			KAECFoundRequisites? v = kl.GetRequisites (selectedIndex);
 			KAECFoundRequisites fr = v.Value;
-			/*string model = kb.KKTNumbers.GetKKTModel (values[0]);*/
 
-			InfoLabel.Text = "Заводской номер ККТ: " + /*values[0]*/ fr.KKTSerial + RDLocale.RN;
-			InfoLabel.Text += "Модель ККТ: " + /*model*/ kb.KKTNumbers.GetKKTModel (fr.KKTSerial) + RDLocale.RN;
-			InfoLabel.Text += "Владелец: " + /*values[1]*/ fr.KKTOwner + RDLocale.RNRN;
+			InfoLabel.Text = "Заводской номер ККТ: " + fr.KKTSerial + RDLocale.RN;
+			InfoLabel.Text += "Модель ККТ: " + kb.KKTNumbers.GetKKTModel (fr.KKTSerial) + RDLocale.RN;
+			InfoLabel.Text += "Владелец: " + fr.KKTOwner + RDLocale.RNRN;
 
-			InfoLabel.Text += "Местоположение: " + /*values[3]*/ fr.KKTPlacement + RDLocale.RN;
-			InfoLabel.Text += "Контактные данные: " + /*values[2]*/ fr.KKTOwnerContact + RDLocale.RNRN;
+			InfoLabel.Text += "Местоположение: " + fr.KKTPlacement + RDLocale.RN;
+			InfoLabel.Text += "Контактные данные: " + fr.KKTOwnerContact + RDLocale.RNRN;
 
-			InfoLabel.Text += "Срок действия ФН: " + /*values[4]*/ fr.FNExpirationDate + RDLocale.RN;
-			InfoLabel.Text += "  Осталось дней: " + /*values[5]*/ fr.DaysToFNExpiration.ToString () + RDLocale.RN;
-			if (/*values[12]*/ fr.FNActivationDate != KAECList.NoOFDAlias)
-				InfoLabel.Text += "  Активирован: " + /*values[12]*/ fr.FNActivationDate + RDLocale.RN;
+			InfoLabel.Text += "Срок действия ФН: " + fr.FNExpirationDate + RDLocale.RN;
+			InfoLabel.Text += "  Осталось дней: " + fr.DaysToFNExpiration.ToString () + RDLocale.RN;
+			if (fr.FNActivationDate != KAECList.NoOFDAlias)
+				InfoLabel.Text += "  Активирован: " + fr.FNActivationDate + RDLocale.RN;
 
 			InfoLabel.Text += RDLocale.RN;
-			if (/*values[6]*/ fr.OFDExpirationDate == KAECList.UnknownOFDAlias)
+			if (fr.OFDExpirationDate == KAECList.UnknownOFDAlias)
 				{
 				InfoLabel.Text += "Состояние ОФД: неизвестно";
 				}
-			else if (/*values[6]*/ fr.OFDExpirationDate != KAECList.NoOFDAlias)
+			else if (fr.OFDExpirationDate != KAECList.NoOFDAlias)
 				{
-				InfoLabel.Text += "Срок тарифа ОФД: " + /*values[6]*/ fr.OFDExpirationDate + RDLocale.RN;
-				InfoLabel.Text += "  Осталось дней: " + /*values[7]*/ fr.DaysToOFDExpiration.ToString () + RDLocale.RN;
-				if (/*values[14]*/ fr.OFDActivationDate != KAECList.NoOFDAlias)
-					InfoLabel.Text += "  Активирован: " + /*values[14]*/ fr.OFDActivationDate;
+				InfoLabel.Text += "Срок тарифа ОФД: " + fr.OFDExpirationDate + RDLocale.RN;
+				InfoLabel.Text += "  Осталось дней: " + fr.DaysToOFDExpiration.ToString () + RDLocale.RN;
+				if (fr.OFDActivationDate != KAECList.NoOFDAlias)
+					InfoLabel.Text += "  Активирован: " + fr.OFDActivationDate;
 				}
 
 			int fnDays = kl.GetDaysToFNExpiration (selectedIndex);
@@ -553,10 +547,8 @@ namespace RD_AAOW
 		// Экспорт данных
 		private void MExport_Click (object sender, EventArgs e)
 			{
-			/*string[] values = kl.GetRequisites (selectedIndex);*/
 			KAECFoundRequisites? v = kl.GetRequisites (selectedIndex);
 
-			/*KassArrayECExport kaece = new KassArrayECExport (kl, values == null ? "" : values[1], kb);*/
 			KassArrayECExport kaece = new KassArrayECExport (kl, v == null ? "" : v.Value.KKTOwner, kb);
 			if (kaece.ReloadRequired)
 				ReloadList ();
