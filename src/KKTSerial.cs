@@ -436,7 +436,6 @@ namespace RD_AAOW
 
 					// > Все известные сигнатуры
 					if (!flags.HasFlag (KKTSerialFlags.NameChanged))
-						/*registryStats[1 + ffdNames.Length]++;*/
 						registryStats2[1]++;
 					}
 				else
@@ -450,7 +449,6 @@ namespace RD_AAOW
 				if (!state.HasFlag (FFDSupportStates2.Supported12))
 					{
 					flags |= KKTSerialFlags.DoesntSupportActualFFD;
-					/*registryStats[5 + ffdNames.Length]++;*/
 					registryStats2[5]++;
 					}
 				serialFlags.Add (flags);
@@ -458,12 +456,10 @@ namespace RD_AAOW
 				// > Точно известные сигнатуры
 				if (flags.HasFlag (KKTSerialFlags.SerialIsKnown) &&
 					!flags.HasFlag (KKTSerialFlags.NameChanged))
-					/*registryStats[2 + ffdNames.Length]++;*/
 					registryStats2[2]++;
 
 				// > Исключённые из реестра
 				if (flags.HasFlag (KKTSerialFlags.RemovedFromRegistry))
-					/*registryStats[3 + ffdNames.Length]++;*/
 					registryStats2[3]++;
 
 				// ТС ПИоТ
@@ -495,7 +491,6 @@ namespace RD_AAOW
 						serialTSPI.Add (tsLine);
 
 						// > Имеющие ТС ПИоТ
-						/*registryStats[4 + ffdNames.Length]++;*/
 						registryStats2[4]++;
 						break;
 					}
@@ -789,7 +784,6 @@ namespace RD_AAOW
 			{
 			get
 				{
-				/*uint tsPart = 100 * registryStats[ffdNames.Length + 4] / registryStats[ffdNames.Length];*/
 				uint tsPart = 100 * registryStats2[4] / registryStats2[ffdStatsBase + 3];
 
 #if ANDROID
