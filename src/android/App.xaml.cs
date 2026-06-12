@@ -498,6 +498,7 @@ namespace RD_AAOW
 
 				// Сборка контрола
 				Button b = new Button ();
+				RDInterface.ApplyButtonDefaults (b, true);
 
 				if (kl.GetNoControlStatus (i))
 					{
@@ -518,7 +519,7 @@ namespace RD_AAOW
 					b.BackgroundColor = RDInterface.GetInterfaceColor (RDInterfaceColors.SuccessMessage);
 					}
 
-				b.TextColor = RDInterface.GetInterfaceColor (RDInterfaceColors.DefaultText);
+				/*b.TextColor = RDInterface.GetInterfaceColor (RDInterfaceColors.DefaultText);*/
 				b.Clicked += KKTList_ButtonClicked;
 				b.Margin = new Thickness (6);
 				b.FontSize = menuButton.FontSize;
