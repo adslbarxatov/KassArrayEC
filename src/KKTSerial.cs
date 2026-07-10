@@ -232,7 +232,7 @@ namespace RD_AAOW
 
 		private List<string> regions = [];
 
-		private uint[] registryStats2 = [
+		private uint[] registryStats = [
 			0,	// 0. Всего
 			0,	// 1. Известные сигнатуры
 			0,	// 2. Точно известные сигнатуры
@@ -245,36 +245,6 @@ namespace RD_AAOW
 
 		private int lastSearchOffset = 0;
 
-		// Карта индексов ТС ПИоТ
-		private char[] tsMapNames = [
-			'a',
-			'2',
-			'3',
-			'6',
-			'7',
-			'b',
-			'c',
-			'd',
-			'e',
-			'f',
-			'g',
-			'h',
-			];
-		private byte[][] tsMapIndexes = [
-			[1, 4, 5, 18],
-			[2],
-			[3, 17],
-			[6],
-			[7],
-			[8, 9],
-			[10],
-			[11],
-			[12, 14, 15],
-			[13],
-			[16],
-			[19],
-			];
-
 		/// <summary>
 		/// Конструктор. Инициализирует таблицу
 		/// </summary>
@@ -286,8 +256,35 @@ namespace RD_AAOW
 #else
 			byte[] tspiData = RD_AAOW.Properties.Resources.TSPI;
 #endif
-			string tspi = RDGenerics.GetEncoding (RDEncodings.UTF8).GetString (tspiData);
-			string[] tspiValues = tspi.Split (['\n', '\r'], StringSplitOptions.RemoveEmptyEntries);
+			string buf = RDGenerics.GetEncoding (RDEncodings.UTF8).GetString (tspiData);
+			StringReader SR = new StringReader (buf);
+
+			// Карта индексов ТС ПИоТ
+			List<char> tsMapNames = [];
+			List<byte[]> tsMapIndexes = [];
+			List<string[]> tspiValues = [];
+
+			string str;
+			char[] splitter = ['\t'];
+
+			while (!string.IsNullOrWhiteSpace (str = SR.ReadLine ()))
+				tspiValues.Add (str.Split (splitter, StringSplitOptions.RemoveEmptyEntries));
+
+			char[] numbersSplitter = [' '];
+			while (!string.IsNullOrWhiteSpace (str = SR.ReadLine ()))
+				{
+				string[] map = str.Split (splitter, StringSplitOptions.RemoveEmptyEntries);
+				tsMapNames.Add (map[0][0]);
+
+				List<byte> numbersB = [];
+				string[] numbersS = map[1].Split (numbersSplitter, StringSplitOptions.RemoveEmptyEntries);
+				for (int n = 0; n < numbersS.Length; n++)
+					numbersB.Add (byte.Parse (numbersS[n]));
+
+				tsMapIndexes.Add (numbersB.ToArray ());
+				}
+
+			SR.Close ();
 
 			// Получение файла заводских номеров и моделей
 #if !ANDROID
@@ -295,15 +292,11 @@ namespace RD_AAOW
 #else
 			byte[] data = RD_AAOW.Properties.Resources.KKTSN;
 #endif
-			string buf = RDGenerics.GetEncoding (RDEncodings.UTF8).GetString (data);
-			StringReader SR = new StringReader (buf);
-
-			// Формирование массива 
-			string str;
-			char[] splitter = ['\t'];
+			buf = RDGenerics.GetEncoding (RDEncodings.UTF8).GetString (data);
+			SR = new StringReader (buf);
 
 			// Чтение параметров
-			SR.ReadLine (); // Заголовок
+			SR.ReadLine ();	// Заголовок
 			while (!string.IsNullOrWhiteSpace (str = SR.ReadLine ()))
 				{
 				string[] values = str.Split (splitter, StringSplitOptions.RemoveEmptyEntries);
@@ -320,7 +313,7 @@ namespace RD_AAOW
 
 				// > Общее число моделей
 				if (!flags.HasFlag (KKTSerialFlags.DifferentImplementations))
-					registryStats2[0]++;
+					registryStats[0]++;
 
 				// Поддержка ФФД
 				FFDSupportStates2 state = FFDSupportStates2.None;
@@ -334,7 +327,7 @@ namespace RD_AAOW
 							// > Поддержка ФФД
 							if (!flags.HasFlag (KKTSerialFlags.DifferentImplementations) &&
 								!flags.HasFlag (KKTSerialFlags.NameChanged))
-								registryStats2[ffdStatsBase + i]++;
+								registryStats[ffdStatsBase + i]++;
 							break;
 
 						case 'U':
@@ -436,7 +429,7 @@ namespace RD_AAOW
 
 					// > Все известные сигнатуры
 					if (!flags.HasFlag (KKTSerialFlags.NameChanged))
-						registryStats2[1]++;
+						registryStats[1]++;
 					}
 				else
 					{
@@ -449,18 +442,18 @@ namespace RD_AAOW
 				if (!state.HasFlag (FFDSupportStates2.Supported12))
 					{
 					flags |= KKTSerialFlags.DoesntSupportActualFFD;
-					registryStats2[5]++;
+					registryStats[5]++;
 					}
 				serialFlags.Add (flags);
 
 				// > Точно известные сигнатуры
 				if (flags.HasFlag (KKTSerialFlags.SerialIsKnown) &&
 					!flags.HasFlag (KKTSerialFlags.NameChanged))
-					registryStats2[2]++;
+					registryStats[2]++;
 
 				// > Исключённые из реестра
 				if (flags.HasFlag (KKTSerialFlags.RemovedFromRegistry))
-					registryStats2[3]++;
+					registryStats[3]++;
 
 				// ТС ПИоТ
 				switch (values[2][5])
@@ -480,7 +473,7 @@ namespace RD_AAOW
 						string tsLine = "";
 						for (int t = 0; t < tsIndexes.Length; t++)
 							{
-							string tsName = tspiValues[tsIndexes[t] - 1];
+							string tsName = tspiValues[tsIndexes[t] - 1][1];
 							int left = tsName.IndexOf ('\t');
 
 							if (tsIndexes.Length > 1)
@@ -491,7 +484,7 @@ namespace RD_AAOW
 						serialTSPI.Add (tsLine);
 
 						// > Имеющие ТС ПИоТ
-						registryStats2[4]++;
+						registryStats[4]++;
 						break;
 					}
 				}
@@ -784,52 +777,52 @@ namespace RD_AAOW
 			{
 			get
 				{
-				uint tsPart = 100 * registryStats2[4] / registryStats2[ffdStatsBase + 3];
+				uint tsPart = 100 * registryStats[4] / registryStats[ffdStatsBase + 3];
 
 #if ANDROID
 				string res = "Моделей ККТ в реестре ФНС" + RDLocale.RN +
 					"(на " + ProgramDescription.AssemblyLastUpdate + "): " +
-					registryStats2[0].ToString () + RDLocale.RNRN;
+					registryStats[0].ToString () + RDLocale.RNRN;
 				res += "Из них поддерживают:" + RDLocale.RN;
 
 				for (int i = 0; i < ffdNames2.Length; i++)
 					res += "  ФФД " + ffdNames2[i] + ": " +
-						registryStats2[ffdStatsBase + i].ToString () + RDLocale.RN;
+						registryStats[ffdStatsBase + i].ToString () + RDLocale.RN;
 
 				res += "    из них имеют ТС ПИоТ: " +
-					registryStats2[4].ToString () + " (" +
+					registryStats[4].ToString () + " (" +
 					tsPart.ToString () + "%)" + RDLocale.RN;
 
 				res += RDLocale.RN + "Известно сигнатур ЗН: " +
-					registryStats2[1] + RDLocale.RN;
-				res += "  из них – точно: " + registryStats2[2] + RDLocale.RN;
+					registryStats[1] + RDLocale.RN;
+				res += "  из них – точно: " + registryStats[2] + RDLocale.RN;
 
 				res += RDLocale.RN + "Исключены из реестра: " +
-					registryStats2[3];
+					registryStats[3];
 				res += RDLocale.RN + "Могут быть исключены " + RDLocale.RN +
-					"с 1 марта 2027 года: " + registryStats2[5];
+					"с 1 марта 2027 года: " + registryStats[5];
 #else
 				string res = "\tМоделей ККТ в реестре ФНС" + RDLocale.RN +
 					"\t(на " + ProgramDescription.AssemblyLastUpdate + "):\t" +
-					registryStats2[0].ToString () + RDLocale.RNRN;
+					registryStats[0].ToString () + RDLocale.RNRN;
 				res += "\tИз них поддерживают:" + RDLocale.RN;
 
 				for (int i = 0; i < ffdNames2.Length; i++)
 					res += "\t  ФФД " + ffdNames2[i] + ":  \t\t" +
-						registryStats2[ffdStatsBase + i].ToString () + RDLocale.RN;
+						registryStats[ffdStatsBase + i].ToString () + RDLocale.RN;
 
 				res += "\t    из них имеют ТС ПИоТ:\t" +
-					registryStats2[4].ToString () + " (" +
+					registryStats[4].ToString () + " (" +
 					tsPart.ToString () + "%)" + RDLocale.RN;
 
 				res += RDLocale.RN + "\tИзвестно сигнатур ЗН:\t" +
-					registryStats2[1] + RDLocale.RN;
-				res += "\t  из них – точно:\t\t" + registryStats2[2] + RDLocale.RN;
+					registryStats[1] + RDLocale.RN;
+				res += "\t  из них – точно:\t\t" + registryStats[2] + RDLocale.RN;
 
 				res += RDLocale.RN + "\tИсключены из реестра:\t" +
-					registryStats2[3];
+					registryStats[3];
 				res += RDLocale.RN + "\tМогут быть исключены " + RDLocale.RN +
-					"\tс 1 марта 2027 года:\t\t" + registryStats2[5];
+					"\tс 1 марта 2027 года:\t\t" + registryStats[5];
 #endif
 
 				return res;

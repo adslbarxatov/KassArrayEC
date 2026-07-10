@@ -335,19 +335,21 @@ namespace RD_AAOW
 				await RDInterface.XPUNLoop ();
 
 			// Политика
-			if (RDGenerics.TipsState != 0)
-				return;
-
 			await RDInterface.PolicyLoop ();
 
+			if (RDGenerics.TipsState != 0)
+				return;
+			
 			// Только после принятия
-			await RDInterface.ShowMessage ("Вас приветствует " + ProgramDescription.AssemblyMainName + ProgramDescription.KassArrayECAlias +
+			await RDInterface.ShowMessage ("Вас приветствует " + ProgramDescription.AssemblyMainName +
 				" – " + ProgramDescription.AssemblyDescription + RDLocale.RNRN +
 				"Данный инструмент позволяет отслеживать и своевременно реагировать на истекающие сроки жизни " +
 				"ФН и тарифы ОФД. Список ККТ на главной странице приложения автоматически сортируется таким образом, " +
 				"чтобы ККТ, требующие внимания, всегда находились в самом его начале. А цветовая индикация не позволит " +
 				"пропустить важные события",
 				RDLocale.GetDefaultText (RDLDefaultTexts.Button_OK));
+
+			RDGenerics.TipsState = 0x0001;
 			}
 
 		/// <summary>
@@ -385,13 +387,15 @@ namespace RD_AAOW
 			{
 			await Task.Delay (500);
 
+			double height = RDInterface.MasterPage.CurrentPage.Height - RDGenerics.NavigationBarsSize;
 			kktListContainer.HeightRequest = kktListContainer.MaximumHeightRequest =
-				kktListPage.Height - 4.0 * menuButton.Height;
+				height - menuButton.Height - countLabel.Height - 20;
 			kktSettingsContainer.HeightRequest = kktSettingsContainer.MaximumHeightRequest =
-				kktListPage.Height - 2.0 * menuButton.Height;
+				height - applyButton.Height;
+
+			/*RDInterface.ShowBalloon (height.ToString (), true);*/
 			}
 
-		// Этот вызов необходим для корректной разметки страницы журнала, когда первой отображается страница настроек
 		private async void Current_LogPagePopped (object sender, NavigationEventArgs e)
 			{
 			Current_MainDisplayInfoChanged (null, null);
@@ -817,6 +821,7 @@ namespace RD_AAOW
 
 		#region Настройки ККТ
 
+		// Запуск записи на редактирование
 		private void RunRecordEdition ()
 			{
 			// Инициализация
@@ -946,6 +951,9 @@ namespace RD_AAOW
 
 			// Запуск
 			RDInterface.SetCurrentPage (kktSettingsPage, kktSettingsMasterBackColor);
+
+			// Пересчёт расположения элементов
+			Current_MainDisplayInfoChanged (null, null);
 			}
 
 		// Копирование даты из буфера обмена
