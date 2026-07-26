@@ -80,6 +80,9 @@ namespace RD_AAOW
 		private bool createFromScratch = false;
 		private bool editOwnerData = false;
 
+		// Флаги запуска приложения
+		private RDAppStartupFlags flags;
+
 		#endregion
 
 		#region Запуск и настройка
@@ -103,7 +106,8 @@ namespace RD_AAOW
 		private Page AppShell ()
 			{
 			Page mainPage = new MasterPage ();
-			RDAppStartupFlags flags = RDGenerics.GetAppStartupFlags (RDAppStartupFlags.DisableXPUN);
+			flags = RDGenerics.GetAppStartupFlags (RDAppStartupFlags.DisableXPUN |
+				RDAppStartupFlags.CanReadFiles | RDAppStartupFlags.CanWriteFiles);
 
 			kb = new KnowledgeBase ();
 			kl = new KAECList ();
@@ -392,8 +396,6 @@ namespace RD_AAOW
 				height - menuButton.Height - countLabel.Height - 20;
 			kktSettingsContainer.HeightRequest = kktSettingsContainer.MaximumHeightRequest =
 				height - applyButton.Height;
-
-			/*RDInterface.ShowBalloon (height.ToString (), true);*/
 			}
 
 		private async void Current_LogPagePopped (object sender, NavigationEventArgs e)
@@ -427,6 +429,17 @@ namespace RD_AAOW
 				{
 				// Загрузка файла
 				case 0:
+					if (!flags.HasFlag (RDAppStartupFlags.CanReadFiles))
+						{
+						if (await RDInterface.ShowMessage (
+							RDLocale.GetDefaultText (RDLDefaultTexts.Message_ReadWritePermission) + "." +
+							RDLocale.RNRN + RDLocale.GetDefaultText (RDLDefaultTexts.Message_GoToPermissions),
+							RDLocale.GetDefaultText (RDLDefaultTexts.Button_Yes),
+							RDLocale.GetDefaultText (RDLDefaultTexts.Button_No)))
+							RDInterface.CallAppSettings ();
+						return;
+						}
+
 					string inFile = await RDGenerics.LoadFromFile (RDEncodings.UTF8);
 					if (string.IsNullOrWhiteSpace (inFile))
 						{
@@ -449,10 +462,21 @@ namespace RD_AAOW
 
 				// Сохранение файла
 				case 1:
+					if (!flags.HasFlag (RDAppStartupFlags.CanWriteFiles))
+						{
+						if (await RDInterface.ShowMessage (
+							RDLocale.GetDefaultText (RDLDefaultTexts.Message_ReadWritePermission) + "." +
+							RDLocale.RNRN + RDLocale.GetDefaultText (RDLDefaultTexts.Message_GoToPermissions),
+							RDLocale.GetDefaultText (RDLDefaultTexts.Button_Yes),
+							RDLocale.GetDefaultText (RDLDefaultTexts.Button_No)))
+							RDInterface.CallAppSettings ();
+						return;
+						}
+
 					string outFile = kl.ExportDataForExchange ();
 
 					await RDGenerics.SaveToFile ("Данные для обмена " + ProgramDescription.AssemblyMainName +
-						ProgramDescription.KassArrayECAlias + ".cfg", outFile, RDEncodings.UTF8);
+						".cfg", outFile, RDEncodings.UTF8);
 					break;
 
 				// Настройки
@@ -523,7 +547,6 @@ namespace RD_AAOW
 					b.BackgroundColor = RDInterface.GetInterfaceColor (RDInterfaceColors.SuccessMessage);
 					}
 
-				/*b.TextColor = RDInterface.GetInterfaceColor (RDInterfaceColors.DefaultText);*/
 				b.Clicked += KKTList_ButtonClicked;
 				b.Margin = new Thickness (6);
 				b.FontSize = menuButton.FontSize;
@@ -1084,7 +1107,7 @@ namespace RD_AAOW
 			lastSearchCriteria = kktSerialField.Text;
 			SearchButton_Click (findNextButton, null);
 
-			await RDInterface.MasterPage.PopAsync (true);
+			await RDInterface.MasterPage.PopToRootAsync (true);
 			}
 
 		// Переключение полей сроков активации

@@ -118,12 +118,13 @@ namespace RD_AAOW
 
 			// Запуск переданных реквизитов на редактирование
 			if (getValuesFromRegistration)
-				{
-				KassArrayECEntry kaec = new KassArrayECEntry (kl, true);
-				if (!kaec.Cancelled)
-					ReloadList ();
-				kaec.Dispose ();
-				}
+				GetRequisitesFromRegistration ();
+			/*{
+			KassArrayECEntry kaec = new KassArrayECEntry (kl, true);
+			if (!kaec.Cancelled)
+				ReloadList ();
+			kaec.Dispose ();
+			}*/
 			}
 
 		// Закрытие окна
@@ -205,9 +206,12 @@ namespace RD_AAOW
 				return;
 
 			// Защита от лишних действий
-			if (this.Visible && (this.WindowState != FormWindowState.Minimized) || !ewh.WaitOne (100))
+			/*if (this.Visible && (this.WindowState != FormWindowState.Minimized) || !ewh.WaitOne (100))*/
+			string flag = KassArrayDB::RD_AAOW.KKTSupport.PathForStartupOpening;
+			if (string.IsNullOrWhiteSpace (flag) && this.Visible &&
+				(this.WindowState != FormWindowState.Minimized) || !ewh.WaitOne (100))
 				{
-				ewh.Reset ();	// Удаление задвоенных вызовов
+				ewh.Reset ();   // Удаление задвоенных вызовов
 				return;
 				}
 
@@ -220,6 +224,23 @@ namespace RD_AAOW
 			this.TopMost = true;
 			this.TopMost = false;
 			this.WindowState = FormWindowState.Normal;
+
+			// Запуск команды, если она была передана
+			if (!string.IsNullOrWhiteSpace (flag))
+				{
+				KassArrayDB::RD_AAOW.KKTSupport.PathForStartupOpening = "";
+
+				GetRequisitesFromRegistration ();
+				}
+			}
+
+		// Получение реквизитов для отслеживания из данных регистрации KassArrayFS
+		private void GetRequisitesFromRegistration ()
+			{
+			KassArrayECEntry kaec = new KassArrayECEntry (kl, true);
+			if (!kaec.Cancelled)
+				ReloadList ();
+			kaec.Dispose ();
 			}
 
 		// Перезагрузка списка ККТ
