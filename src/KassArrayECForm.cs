@@ -119,12 +119,6 @@ namespace RD_AAOW
 			// Запуск переданных реквизитов на редактирование
 			if (getValuesFromRegistration)
 				GetRequisitesFromRegistration ();
-			/*{
-			KassArrayECEntry kaec = new KassArrayECEntry (kl, true);
-			if (!kaec.Cancelled)
-				ReloadList ();
-			kaec.Dispose ();
-			}*/
 			}
 
 		// Закрытие окна
@@ -206,12 +200,11 @@ namespace RD_AAOW
 				return;
 
 			// Защита от лишних действий
-			/*if (this.Visible && (this.WindowState != FormWindowState.Minimized) || !ewh.WaitOne (100))*/
 			string flag = KassArrayDB::RD_AAOW.KKTSupport.PathForStartupOpening;
 			if (string.IsNullOrWhiteSpace (flag) && this.Visible &&
 				(this.WindowState != FormWindowState.Minimized) || !ewh.WaitOne (100))
 				{
-				ewh.Reset ();   // Удаление задвоенных вызовов
+				ewh.Reset ();	// Удаление задвоенных вызовов
 				return;
 				}
 
@@ -293,10 +286,10 @@ namespace RD_AAOW
 				l.Click += KKTList_LabelClicked;
 				l.Font = kktFont;
 
-				if (fr.IsINNSet)
-					l.Text = model + "  |  " + fr.KKTOwner;
-				else
-					l.Text = model + "  |  [ИНН не задан] " + fr.KKTOwner;
+				/*if (fr.IsINNSet)*/
+				l.Text = model + "  |  " + fr.KKTOwner;
+				/*else
+					l.Text = model + "  |  [ИНН не задан] " + fr.KKTOwner;*/
 
 				l.Margin = kktMargin;
 				l.Padding = kktMargin;

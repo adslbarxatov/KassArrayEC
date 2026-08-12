@@ -83,6 +83,13 @@ namespace RD_AAOW
 		// Флаги запуска приложения
 		private RDAppStartupFlags flags;
 
+		// Параметры перемещения по страницам
+		private const uint kktPerPage = 20;
+		private uint currentPage = 0;
+
+		private const string prevPageSign = "\x2B05\xFE0F";
+		private const string nextPageSign = "\x27A1\xFE0F";
+
 		#endregion
 
 		#region Запуск и настройка
@@ -512,13 +519,15 @@ namespace RD_AAOW
 			else if (selectedIndex >= kl.ItemsCount)
 				selectedIndex = kl.ItemsCount - 1;
 
-			uint yWarnings = 0;
-			uint rWarnings = 0;
+			// Формирование контролов
+			if ((currentPage > 0) && (currentPage * kktPerPage >= kl.ItemsCount))
+				currentPage--;
+
 			uint yellowTs = KAECList.YellowWarningThreshold;
 			uint redTs = KAECList.RedWarningThreshold;
+			RDInterfaceColors color;
 
-			// Формирование контролов
-			for (uint i = 0; i < kl.ItemsCount; i++)
+			for (uint i = currentPage * kktPerPage; (i < kl.ItemsCount) && (i < (currentPage + 1) * kktPerPage); i++)
 				{
 				KAECFoundRequisites? v = kl.GetRequisites (i);
 				KAECFoundRequisites fr = v.Value;
@@ -528,7 +537,7 @@ namespace RD_AAOW
 				Button b = new Button ();
 				RDInterface.ApplyButtonDefaults (b, true);
 
-				if (kl.GetNoControlStatus (i))
+				/*if (kl.GetNoControlStatus (i))
 					{
 					b.BackgroundColor = RDInterface.GetInterfaceColor (RDInterfaceColors.MediumGrey);
 					}
@@ -545,31 +554,108 @@ namespace RD_AAOW
 				else
 					{
 					b.BackgroundColor = RDInterface.GetInterfaceColor (RDInterfaceColors.SuccessMessage);
-					}
+					}*/
+				int fnExpiration = kl.GetDaysToFNExpiration (i);
+				int ofdExpiration = kl.GetDaysToOFDExpiration (i);
+
+				if (kl.GetNoControlStatus (i))
+					color = RDInterfaceColors.MediumGrey;
+				else if ((fnExpiration < redTs) || (ofdExpiration < redTs))
+					color = RDInterfaceColors.ErrorMessage;
+				else if ((fnExpiration < yellowTs) || (ofdExpiration < yellowTs))
+					color = RDInterfaceColors.WarningMessage;
+				else
+					color = RDInterfaceColors.SuccessMessage;
+				b.BackgroundColor = RDInterface.GetInterfaceColor (color);
 
 				b.Clicked += KKTList_ButtonClicked;
 				b.Margin = new Thickness (6);
 				b.FontSize = menuButton.FontSize;
 
-				b.Text = model + RDLocale.RN;
-				if (fr.IsINNSet)
-					b.Text += fr.KKTOwner;
-				else
-					b.Text += "[ИНН не задан] " + fr.KKTOwner;
+				b.Text = model + RDLocale.RN + fr.KKTSerial + RDLocale.RN;
+				/*if (fr.IsINNSet)*/
+				b.Text += fr.KKTOwner;
+				/*else
+					b.Text += "[ИНН не задан] " + fr.KKTOwner;*/
 
 				// Добавление
 				kktListField.Children.Add (b);
+				}
+
+			// Добавление кнопок перехода между страницами
+			if (currentPage > 0)
+				{
+				Button b1 = new Button ();
+				RDInterface.ApplyButtonDefaults (b1, true);
+
+				b1.BackgroundColor = kktListFieldBackColor;
+				b1.Clicked += KKTList_PageChanged;
+				b1.Margin = new Thickness (24, 6);
+				/*b1.FontSize = menuButton.FontSize;*/
+				b1.Text = prevPageSign + " на страницу " + (currentPage + 1 - 1).ToString ();
+
+				kktListField.Children.Insert (0, b1);
+
+				Button b2 = new Button ();
+				RDInterface.ApplyButtonDefaults (b2, true);
+
+				b2.BackgroundColor = kktListFieldBackColor;
+				b2.Clicked += KKTList_PageChanged;
+				b2.Margin = new Thickness (24, 6);
+				/*b2.FontSize = menuButton.FontSize;*/
+				b2.Text = prevPageSign + prevPageSign  + " в начало";
+
+				kktListField.Children.Insert (0, b2);
+				}
+
+			if ((currentPage + 1) * kktPerPage < kl.ItemsCount)
+				{
+				Button b1 = new Button ();
+				RDInterface.ApplyButtonDefaults (b1, true);
+
+				b1.BackgroundColor = kktListFieldBackColor;
+				b1.Clicked += KKTList_PageChanged;
+				b1.Margin = new Thickness (24, 6);
+				/*b.FontSize = menuButton.FontSize;*/
+				b1.Text = nextPageSign + " на страницу " + (currentPage + 1 + 1).ToString ();
+
+				kktListField.Children.Add (b1);
+
+				Button b2 = new Button ();
+				RDInterface.ApplyButtonDefaults (b2, true);
+
+				b2.BackgroundColor = kktListFieldBackColor;
+				b2.Clicked += KKTList_PageChanged;
+				b2.Margin = new Thickness (24, 6);
+				b2.Text = nextPageSign + nextPageSign + " в конец";
+
+				kktListField.Children.Add (b2);
 				}
 
 			// Прочее
 			addToSameOwnerButton.IsVisible = updateButton.IsVisible = removeButton.IsVisible =
 				updateContactsButton.IsVisible = findButton.IsEnabled = findNextButton.IsEnabled = (kl.ItemsCount > 0);
 
+			// Общее сообщение по всем ККТ
+			uint yWarnings = 0;
+			uint rWarnings = 0;
+
+			for (uint i = 0; i < kl.ItemsCount; i++)
+				{
+				int fnExpiration = kl.GetDaysToFNExpiration (i);
+				int ofdExpiration = kl.GetDaysToOFDExpiration (i);
+
+				if ((fnExpiration < redTs) || (ofdExpiration < redTs))
+					rWarnings++;
+				else if ((fnExpiration < yellowTs) || (ofdExpiration < yellowTs))
+					yWarnings++;
+				}
+
 			countLabel.Text = "Отслеживается касс: " + kl.ItemsCount.ToString () + RDLocale.RN +
 				"Число владельцев: " + kl.OwnersCount.ToString () + RDLocale.RN +
 				"Предупреждений: " + (yWarnings + rWarnings).ToString ();
 
-			RDInterfaceColors color;
+			/*RDInterfaceColors color;*/
 			if (rWarnings > 0)
 				color = RDInterfaceColors.ErrorMessage;
 			else if (yWarnings > 0)
@@ -582,7 +668,7 @@ namespace RD_AAOW
 			// Загрузка описания
 			KKTList_ButtonClicked (null, null);
 			}
-
+		
 		// Выбор ККТ в списке
 		private void KKTList_ButtonClicked (object sender, EventArgs e)
 			{
@@ -594,8 +680,11 @@ namespace RD_AAOW
 				int idx = kktListField.Children.IndexOf (b);
 				if (idx < 0)
 					return;
-				else
-					selectedIndex = (uint)idx;
+
+				if ((currentPage > 0) && (kl.ItemsCount > kktPerPage))
+					idx -= 2;
+
+				selectedIndex = (uint)idx + kktPerPage * currentPage;
 
 				RDInterface.SetCurrentPage (kktInfoPage, b.BackgroundColor);
 				}
@@ -705,6 +794,16 @@ namespace RD_AAOW
 				}
 
 			// Успешно
+			uint edge = (uint)idx / kktPerPage;
+			if (currentPage != edge)
+				{
+				currentPage = edge;
+				ReloadList ();
+				}
+
+			idx %= (int)kktPerPage;
+			if ((currentPage > 0) && (kl.ItemsCount > kktPerPage))
+				idx += 2;
 			KKTList_ButtonClicked (kktListField.Children[idx], null);
 			}
 
@@ -719,6 +818,23 @@ namespace RD_AAOW
 				PhoneDialer.Open (number);
 				}
 			catch { }
+			}
+
+		// Переход между страницами
+		private void KKTList_PageChanged (object sender, EventArgs e)
+			{
+			string name = ((Button)sender).Text;
+			if (name.StartsWith (prevPageSign + prevPageSign))
+				currentPage = 0;
+			else if (name.StartsWith (prevPageSign))
+				currentPage--;
+
+			if (name.StartsWith (nextPageSign + nextPageSign))
+				currentPage = (kl.ItemsCount - 1) / kktPerPage;
+			else if (name.StartsWith (nextPageSign))
+				currentPage++;
+
+			ReloadList ();
 			}
 
 		#endregion
@@ -1060,7 +1176,7 @@ namespace RD_AAOW
 			// Обновление данных владельца
 			if (editOwnerData)
 				{
-				kl.UpdateOwnerData (selectedIndex, kktOwnerField.Text, kktOwnerINNField.Text,
+				kl.UpdateOwnerData (selectedIndex, kktOwnerField.Text, /*kktOwnerINN Field.Text,*/
 					kktOwnerContactsField.Text);
 
 				ReloadList ();
@@ -1088,7 +1204,7 @@ namespace RD_AAOW
 			parameters.NoControl = fnExpirationFlag.IsToggled;
 			parameters.FNEvaluatedLength = fnEvaluatedLengthFlag.IsToggled ? uint.Parse (fnEvaluatedLengthField.Text) : 0;
 			parameters.OFDEvaluatedLength = ofdEvaluatedLengthFlag.IsToggled ? uint.Parse (ofdEvaluatedLengthField.Text) : 0;
-			parameters.OwnerIndex = 0;  // Заглушка
+			parameters.OwnerIndex = 0;	// Заглушка
 
 			if (!kl.AddRequisites (kktOwnerField.Text, kktOwnerINNField.Text, kktOwnerContactsField.Text, parameters))
 				{
