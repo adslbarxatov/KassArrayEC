@@ -537,24 +537,6 @@ namespace RD_AAOW
 				Button b = new Button ();
 				RDInterface.ApplyButtonDefaults (b, true);
 
-				/*if (kl.GetNoControlStatus (i))
-					{
-					b.BackgroundColor = RDInterface.GetInterfaceColor (RDInterfaceColors.MediumGrey);
-					}
-				else if ((kl.GetDaysToFNExpiration (i) < redTs) || (kl.GetDaysToOFDExpiration (i) < redTs))
-					{
-					b.BackgroundColor = RDInterface.GetInterfaceColor (RDInterfaceColors.ErrorMessage);
-					rWarnings++;
-					}
-				else if ((kl.GetDaysToFNExpiration (i) < yellowTs) || (kl.GetDaysToOFDExpiration (i) < yellowTs))
-					{
-					b.BackgroundColor = RDInterface.GetInterfaceColor (RDInterfaceColors.WarningMessage);
-					yWarnings++;
-					}
-				else
-					{
-					b.BackgroundColor = RDInterface.GetInterfaceColor (RDInterfaceColors.SuccessMessage);
-					}*/
 				int fnExpiration = kl.GetDaysToFNExpiration (i);
 				int ofdExpiration = kl.GetDaysToOFDExpiration (i);
 
@@ -573,10 +555,7 @@ namespace RD_AAOW
 				b.FontSize = menuButton.FontSize;
 
 				b.Text = model + RDLocale.RN + fr.KKTSerial + RDLocale.RN;
-				/*if (fr.IsINNSet)*/
 				b.Text += fr.KKTOwner;
-				/*else
-					b.Text += "[ИНН не задан] " + fr.KKTOwner;*/
 
 				// Добавление
 				kktListField.Children.Add (b);
@@ -591,7 +570,6 @@ namespace RD_AAOW
 				b1.BackgroundColor = kktListFieldBackColor;
 				b1.Clicked += KKTList_PageChanged;
 				b1.Margin = new Thickness (24, 6);
-				/*b1.FontSize = menuButton.FontSize;*/
 				b1.Text = prevPageSign + " на страницу " + (currentPage + 1 - 1).ToString ();
 
 				kktListField.Children.Insert (0, b1);
@@ -602,7 +580,6 @@ namespace RD_AAOW
 				b2.BackgroundColor = kktListFieldBackColor;
 				b2.Clicked += KKTList_PageChanged;
 				b2.Margin = new Thickness (24, 6);
-				/*b2.FontSize = menuButton.FontSize;*/
 				b2.Text = prevPageSign + prevPageSign  + " в начало";
 
 				kktListField.Children.Insert (0, b2);
@@ -616,7 +593,6 @@ namespace RD_AAOW
 				b1.BackgroundColor = kktListFieldBackColor;
 				b1.Clicked += KKTList_PageChanged;
 				b1.Margin = new Thickness (24, 6);
-				/*b.FontSize = menuButton.FontSize;*/
 				b1.Text = nextPageSign + " на страницу " + (currentPage + 1 + 1).ToString ();
 
 				kktListField.Children.Add (b1);
@@ -655,7 +631,6 @@ namespace RD_AAOW
 				"Число владельцев: " + kl.OwnersCount.ToString () + RDLocale.RN +
 				"Предупреждений: " + (yWarnings + rWarnings).ToString ();
 
-			/*RDInterfaceColors color;*/
 			if (rWarnings > 0)
 				color = RDInterfaceColors.ErrorMessage;
 			else if (yWarnings > 0)
@@ -1176,8 +1151,7 @@ namespace RD_AAOW
 			// Обновление данных владельца
 			if (editOwnerData)
 				{
-				kl.UpdateOwnerData (selectedIndex, kktOwnerField.Text, /*kktOwnerINN Field.Text,*/
-					kktOwnerContactsField.Text);
+				kl.UpdateOwnerData (selectedIndex, kktOwnerField.Text, kktOwnerContactsField.Text);
 
 				ReloadList ();
 				await RDInterface.MasterPage.PopAsync (true);

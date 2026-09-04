@@ -247,10 +247,11 @@ namespace RD_AAOW
 			else if (selectedIndex >= kl.ItemsCount)
 				selectedIndex = kl.ItemsCount - 1;
 
-			uint yWarnings = 0;
-			uint rWarnings = 0;
+			/*uint yWarnings = 0;
+			uint rWarnings = 0;*/
 			uint yellowTs = KAECList.YellowWarningThreshold;
 			uint redTs = KAECList.RedWarningThreshold;
+			RDInterfaceColors color;
 
 			// Формирование контролов
 			for (uint i = 0; i < kl.ItemsCount; i++)
@@ -263,7 +264,7 @@ namespace RD_AAOW
 				Label l = new Label ();
 				l.AutoSize = false;
 
-				if (kl.GetNoControlStatus (i))
+				/*if (kl.GetNoControlStatus (i))
 					{
 					l.BackColor = RDInterface.GetInterfaceColor (RDInterfaceColors.MediumGrey);
 					}
@@ -280,17 +281,21 @@ namespace RD_AAOW
 				else
 					{
 					l.BackColor = RDInterface.GetInterfaceColor (RDInterfaceColors.SuccessMessage);
-					}
+					}*/
+				if (kl.GetNoControlStatus (i))
+					color = RDInterfaceColors.MediumGrey;
+				else if ((kl.GetDaysToFNExpiration (i) < redTs) || (kl.GetDaysToOFDExpiration (i) < redTs))
+					color = RDInterfaceColors.ErrorMessage;
+				else if ((kl.GetDaysToFNExpiration (i) < yellowTs) || (kl.GetDaysToOFDExpiration (i) < yellowTs))
+					color = RDInterfaceColors.WarningMessage;
+				else
+					color = RDInterfaceColors.SuccessMessage;
+				l.BackColor = RDInterface.GetInterfaceColor (color);
 
 				l.ForeColor = RDInterface.GetInterfaceColor (RDInterfaceColors.DefaultText);
 				l.Click += KKTList_LabelClicked;
 				l.Font = kktFont;
-
-				/*if (fr.IsINNSet)*/
 				l.Text = model + "  |  " + fr.KKTOwner;
-				/*else
-					l.Text = model + "  |  [ИНН не задан] " + fr.KKTOwner;*/
-
 				l.Margin = kktMargin;
 				l.Padding = kktMargin;
 
@@ -307,11 +312,25 @@ namespace RD_AAOW
 			BAddSameOwner.Enabled = BUpdate.Enabled = BRemove.Enabled = BUpdateContacts.Enabled =
 				SearchButton.Enabled = SearchField.Enabled = (kl.ItemsCount > 0);
 
+			uint yWarnings = 0;
+			uint rWarnings = 0;
+
+			for (uint i = 0; i < kl.ItemsCount; i++)
+				{
+				int fnExpiration = kl.GetDaysToFNExpiration (i);
+				int ofdExpiration = kl.GetDaysToOFDExpiration (i);
+
+				if ((fnExpiration < redTs) || (ofdExpiration < redTs))
+					rWarnings++;
+				else if ((fnExpiration < yellowTs) || (ofdExpiration < yellowTs))
+					yWarnings++;
+				}
+
 			CountLabel.Text = "Отслеживается касс: " + kl.ItemsCount.ToString () +
 				"  |  Число владельцев: " + kl.OwnersCount.ToString () + RDLocale.RN +
 				"Предупреждений: " + (yWarnings + rWarnings).ToString ();
 
-			RDInterfaceColors color;
+			/*RDInterfaceColors color;*/
 			if (rWarnings > 0)
 				{
 				color = RDInterfaceColors.ErrorMessage;
