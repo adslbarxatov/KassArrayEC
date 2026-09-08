@@ -247,8 +247,6 @@ namespace RD_AAOW
 			else if (selectedIndex >= kl.ItemsCount)
 				selectedIndex = kl.ItemsCount - 1;
 
-			/*uint yWarnings = 0;
-			uint rWarnings = 0;*/
 			uint yellowTs = KAECList.YellowWarningThreshold;
 			uint redTs = KAECList.RedWarningThreshold;
 			RDInterfaceColors color;
@@ -264,24 +262,6 @@ namespace RD_AAOW
 				Label l = new Label ();
 				l.AutoSize = false;
 
-				/*if (kl.GetNoControlStatus (i))
-					{
-					l.BackColor = RDInterface.GetInterfaceColor (RDInterfaceColors.MediumGrey);
-					}
-				else if ((kl.GetDaysToFNExpiration (i) < redTs) || (kl.GetDaysToOFDExpiration (i) < redTs))
-					{
-					l.BackColor = RDInterface.GetInterfaceColor (RDInterfaceColors.ErrorMessage);
-					rWarnings++;
-					}
-				else if ((kl.GetDaysToFNExpiration (i) < yellowTs) || (kl.GetDaysToOFDExpiration (i) < yellowTs))
-					{
-					l.BackColor = RDInterface.GetInterfaceColor (RDInterfaceColors.WarningMessage);
-					yWarnings++;
-					}
-				else
-					{
-					l.BackColor = RDInterface.GetInterfaceColor (RDInterfaceColors.SuccessMessage);
-					}*/
 				if (kl.GetNoControlStatus (i))
 					color = RDInterfaceColors.MediumGrey;
 				else if ((kl.GetDaysToFNExpiration (i) < redTs) || (kl.GetDaysToOFDExpiration (i) < redTs))
@@ -317,6 +297,9 @@ namespace RD_AAOW
 
 			for (uint i = 0; i < kl.ItemsCount; i++)
 				{
+				if (kl.GetNoControlStatus (i))
+					continue;
+
 				int fnExpiration = kl.GetDaysToFNExpiration (i);
 				int ofdExpiration = kl.GetDaysToOFDExpiration (i);
 
@@ -326,11 +309,10 @@ namespace RD_AAOW
 					yWarnings++;
 				}
 
-			CountLabel.Text = "Отслеживается касс: " + kl.ItemsCount.ToString () +
+			CountLabel.Text = "Касс в списке: " + kl.ItemsCount.ToString () +
 				"  |  Число владельцев: " + kl.OwnersCount.ToString () + RDLocale.RN +
 				"Предупреждений: " + (yWarnings + rWarnings).ToString ();
 
-			/*RDInterfaceColors color;*/
 			if (rWarnings > 0)
 				{
 				color = RDInterfaceColors.ErrorMessage;

@@ -618,6 +618,9 @@ namespace RD_AAOW
 
 			for (uint i = 0; i < kl.ItemsCount; i++)
 				{
+				if (kl.GetNoControlStatus (i))
+					continue;
+
 				int fnExpiration = kl.GetDaysToFNExpiration (i);
 				int ofdExpiration = kl.GetDaysToOFDExpiration (i);
 
@@ -627,7 +630,7 @@ namespace RD_AAOW
 					yWarnings++;
 				}
 
-			countLabel.Text = "Отслеживается касс: " + kl.ItemsCount.ToString () + RDLocale.RN +
+			countLabel.Text = "Касс в списке: " + kl.ItemsCount.ToString () + RDLocale.RN +
 				"Число владельцев: " + kl.OwnersCount.ToString () + RDLocale.RN +
 				"Предупреждений: " + (yWarnings + rWarnings).ToString ();
 
