@@ -328,7 +328,7 @@ namespace RD_AAOW
 				{
 #if ANDROID
 				string res = "Моделей ФН в реестре ФНС" + RDLocale.RN +
-					"(на " + ProgramDescription.AssemblyLastUpdate + "): " +
+					"(на " + RDGenerics.BuildDateTime + "): " +
 					registryStats[0].ToString () + RDLocale.RN;
 				res += "  из них – на 36 месяцев: " +
 					registryStats[1].ToString () + RDLocale.RNRN;
@@ -339,7 +339,7 @@ namespace RD_AAOW
 				res += "  из них чтение доступно для: " + registryStats[4];
 #else
 				string res = "\tМоделей ФН в реестре ФНС" + RDLocale.RN +
-					"\t(на " + ProgramDescription.AssemblyLastUpdate + "):\t" +
+					"\t(на " + RDGenerics.BuildDateTime + "):\t" +
 					registryStats[0].ToString () + RDLocale.RN;
 				res += "\t  из них – на 36 месяцев:\t" +
 					registryStats[1].ToString () + RDLocale.RNRN;

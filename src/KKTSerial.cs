@@ -781,7 +781,7 @@ namespace RD_AAOW
 
 #if ANDROID
 				string res = "Моделей ККТ в реестре ФНС" + RDLocale.RN +
-					"(на " + ProgramDescription.AssemblyLastUpdate + "): " +
+					"(на " + RDGenerics.BuildDateTime + "): " +
 					registryStats[0].ToString () + RDLocale.RNRN;
 				res += "Из них поддерживают:" + RDLocale.RN;
 
@@ -803,7 +803,7 @@ namespace RD_AAOW
 					"с 1 марта 2027 года: " + registryStats[5];
 #else
 				string res = "\tМоделей ККТ в реестре ФНС" + RDLocale.RN +
-					"\t(на " + ProgramDescription.AssemblyLastUpdate + "):\t" +
+					"\t(на " + RDGenerics.BuildDateTime + "):\t" +
 					registryStats[0].ToString () + RDLocale.RNRN;
 				res += "\tИз них поддерживают:" + RDLocale.RN;
 
