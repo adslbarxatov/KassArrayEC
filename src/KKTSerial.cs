@@ -55,7 +55,7 @@ namespace RD_AAOW
 	/// <summary>
 	/// Доступные статусы поддержки ФФД
 	/// </summary>
-	public enum FFDSupportStates2
+	public enum FFDSupportStates
 		{
 		/// <summary>
 		/// Статус не задан
@@ -221,7 +221,7 @@ namespace RD_AAOW
 		private List<uint> serialLengths = [];
 		private List<string> serialSamples = [];
 		private List<uint> serialOffsets = [];
-		private List<FFDSupportStates2> ffdSupport = [];
+		private List<FFDSupportStates> ffdSupport = [];
 		private List<KKTSerialFlags> serialFlags = [];
 		private List<string> serialVersions = [];
 		private List<KKTPaperTypes> serialPaperWidths = [];
@@ -316,13 +316,13 @@ namespace RD_AAOW
 					registryStats[0]++;
 
 				// Поддержка ФФД
-				FFDSupportStates2 state = FFDSupportStates2.None;
-				for (int i = 0; i < ffdNames2.Length; i++)
+				FFDSupportStates state = FFDSupportStates.None;
+				for (int i = 0; i < ffdNames.Length; i++)
 					{
 					switch (values[3][i])
 						{
 						case 'S':
-							state |= (FFDSupportStates2)(1 << i);
+							state |= (FFDSupportStates)(1 << i);
 
 							// > Поддержка ФФД
 							if (!flags.HasFlag (KKTSerialFlags.DifferentImplementations) &&
@@ -331,11 +331,11 @@ namespace RD_AAOW
 							break;
 
 						case 'U':
-							state |= (FFDSupportStates2)((1 << i) << 8);
+							state |= (FFDSupportStates)((1 << i) << 8);
 							break;
 
 						case 'P':
-							state |= (FFDSupportStates2)((1 << i) << 16);
+							state |= (FFDSupportStates)((1 << i) << 16);
 							break;
 
 						default:
@@ -439,7 +439,7 @@ namespace RD_AAOW
 					}
 
 				ffdSupport.Add (state);
-				if (!state.HasFlag (FFDSupportStates2.Supported12))
+				if (!state.HasFlag (FFDSupportStates.Supported12))
 					{
 					flags |= KKTSerialFlags.DoesntSupportActualFFD;
 					registryStats[5]++;
@@ -602,16 +602,16 @@ namespace RD_AAOW
 			// Поддержка ФФД
 			string s = "";
 			string us = "";
-			FFDSupportStates2 state = ffdSupport[i];
+			FFDSupportStates state = ffdSupport[i];
 
-			for (int j = 0; j < ffdNames2.Length; j++)
+			for (int j = 0; j < ffdNames.Length; j++)
 				{
-				if (state.HasFlag ((FFDSupportStates2)(1 << j)))
-					s += (ffdNames2[j] + " ");
-				else if (state.HasFlag ((FFDSupportStates2)((1 << j) << 8)))
-					us += (ffdNames2[j] + " ");
-				else if (state.HasFlag ((FFDSupportStates2)((1 << j) << 16)))
-					s += (ffdNames2[j] + "&(план) ");
+				if (state.HasFlag ((FFDSupportStates)(1 << j)))
+					s += (ffdNames[j] + " ");
+				else if (state.HasFlag ((FFDSupportStates)((1 << j) << 8)))
+					us += (ffdNames[j] + " ");
+				else if (state.HasFlag ((FFDSupportStates)((1 << j) << 16)))
+					s += (ffdNames[j] + "&(план) ");
 				}
 
 			if (string.IsNullOrEmpty (s))
@@ -625,7 +625,7 @@ namespace RD_AAOW
 			else if (serialFlags[i].HasFlag (KKTSerialFlags.ShouldBeRemovedFromRegistry))
 				res += "! может быть исключена из реестра ФНС в ближайшее время !";
 			else if (serialFlags[i].HasFlag (KKTSerialFlags.DoesntSupportActualFFD))
-				res += "! может быть исключена из реестра ФНС с 1 марта 2027 года !";
+				res += "! подлежит исключению из реестра ФНС с 1 сентября 2027 года !";
 			else
 				res += "присутствует в реестре ФНС";
 
@@ -718,7 +718,7 @@ namespace RD_AAOW
 			// Готово
 			return res;
 			}
-		private static string[] ffdNames2 = ["1.0", "1.05", "1.1", "1.2"];
+		private static string[] ffdNames = ["1.0", "1.05", "1.1", "1.2"];
 
 		/// <summary>
 		/// Метод выполняет поиск по известным моделям ККТ и возвращает сигнатуру ЗН в случае успеха
@@ -785,8 +785,8 @@ namespace RD_AAOW
 					registryStats[0].ToString () + RDLocale.RNRN;
 				res += "Из них поддерживают:" + RDLocale.RN;
 
-				for (int i = 0; i < ffdNames2.Length; i++)
-					res += "  ФФД " + ffdNames2[i] + ": " +
+				for (int i = 0; i < ffdNames.Length; i++)
+					res += "  ФФД " + ffdNames[i] + ": " +
 						registryStats[ffdStatsBase + i].ToString () + RDLocale.RN;
 
 				res += "    из них имеют ТС ПИоТ: " +
@@ -799,16 +799,16 @@ namespace RD_AAOW
 
 				res += RDLocale.RN + "Исключены из реестра: " +
 					registryStats[3];
-				res += RDLocale.RN + "Могут быть исключены " + RDLocale.RN +
-					"с 1 марта 2027 года: " + registryStats[5];
+				res += RDLocale.RN + "Подлежат исключению " + RDLocale.RN +
+					"с 1 сентября 2027 года: " + registryStats[5];
 #else
 				string res = "\tМоделей ККТ в реестре ФНС" + RDLocale.RN +
 					"\t(на " + RDGenerics.BuildDateTime + "):\t" +
 					registryStats[0].ToString () + RDLocale.RNRN;
 				res += "\tИз них поддерживают:" + RDLocale.RN;
 
-				for (int i = 0; i < ffdNames2.Length; i++)
-					res += "\t  ФФД " + ffdNames2[i] + ":  \t\t" +
+				for (int i = 0; i < ffdNames.Length; i++)
+					res += "\t  ФФД " + ffdNames[i] + ":  \t\t" +
 						registryStats[ffdStatsBase + i].ToString () + RDLocale.RN;
 
 				res += "\t    из них имеют ТС ПИоТ:\t" +
@@ -821,8 +821,8 @@ namespace RD_AAOW
 
 				res += RDLocale.RN + "\tИсключены из реестра:\t" +
 					registryStats[3];
-				res += RDLocale.RN + "\tМогут быть исключены " + RDLocale.RN +
-					"\tс 1 марта 2027 года:\t\t" + registryStats[5];
+				res += RDLocale.RN + "\tПодлежат исключению " + RDLocale.RN +
+					"\tс 1 сентября 2027 года:\t" + registryStats[5];
 #endif
 
 				return res;
