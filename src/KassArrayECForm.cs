@@ -28,11 +28,13 @@ namespace RD_AAOW
 		private bool hideWindow = false;
 		private NotifyIcon ni = new NotifyIcon ();
 
-		// Текущая выбранная строка
+		// Текущая выбранная строка и страница, размер страницы
 		private uint selectedIndex = 0;
+		private uint currentPage = 0;
+		private const uint itemsPerPage = 9;
 
-		// Число оповещений, видимых в поле списка без прокрутки
-		private const uint visibleNotificationsInList = 10;
+		/*// Число оповещений, видимых в поле списка без прокрутки
+		private const uint visibleNotificationsInList = 10;*/
 
 		// Стандартные компоненты стиля полей списка ККТ
 		private Font kktFont;
@@ -204,7 +206,7 @@ namespace RD_AAOW
 			if (string.IsNullOrWhiteSpace (flag) && this.Visible &&
 				(this.WindowState != FormWindowState.Minimized) || !ewh.WaitOne (100))
 				{
-				ewh.Reset ();	// Удаление задвоенных вызовов
+				ewh.Reset ();   // Удаление задвоенных вызовов
 				return;
 				}
 
@@ -243,16 +245,38 @@ namespace RD_AAOW
 			KKTList.Controls.Clear ();
 
 			if (kl.ItemsCount < 1)
+				{
+				currentPage = 0;
 				selectedIndex = 0;
+				}
+			else if (currentPage * itemsPerPage >= kl.ItemsCount)
+				{
+				currentPage--;
+				selectedIndex = currentPage * itemsPerPage;
+				}
 			else if (selectedIndex >= kl.ItemsCount)
+				{
 				selectedIndex = kl.ItemsCount - 1;
+				}
+
+			/*uint pagesCount = kl.ItemsCount / itemsPerPage;
+			if (kl.ItemsCount % itemsPerPage != 0)
+				pagesCount++;*/
+
+			GoToFirstPage.Enabled = GoToPreviousPage.Enabled = (currentPage > 0);
+			GoToLastPage.Enabled = GoToNextPage.Enabled = (currentPage < (int)PagesCount - 1);
+
+			if (kl.ItemsCount < 1)
+				PageLabel.Text = "—";
+			else
+				PageLabel.Text = (currentPage + 1).ToString () + " из " + PagesCount.ToString ();
 
 			uint yellowTs = KAECList.YellowWarningThreshold;
 			uint redTs = KAECList.RedWarningThreshold;
 			RDInterfaceColors color;
 
 			// Формирование контролов
-			for (uint i = 0; i < kl.ItemsCount; i++)
+			for (uint i = currentPage * itemsPerPage; (i < (currentPage + 1) * itemsPerPage) && (i < kl.ItemsCount); i++)
 				{
 				KAECFoundRequisites? v = kl.GetRequisites (i);
 				KAECFoundRequisites fr = v.Value;
@@ -279,13 +303,27 @@ namespace RD_AAOW
 				l.Margin = kktMargin;
 				l.Padding = kktMargin;
 
-				// Блокировка и применение размера
+				// Блокировка и применение размера (минимально необходимого для точного
+				// триггеринга VerticalScroll.Visible)
 				l.MaximumSize = l.MinimumSize = new Size (KKTList.Width - 6 -
-					((kl.ItemsCount > visibleNotificationsInList) ? 18 : 0), 0);
+					/*((kl.ItemsCount > visibleNotificationsInList) ? 18 : 0), 0);*/
+					18, 0);
 				l.AutoSize = true;
 
 				// Добавление
 				KKTList.Controls.Add (l);
+				}
+
+			// Придётся прогонять ещё раз, поскольку статус VerticalScroll.Visible определяется только
+			// по окончании загрузки списка
+			for (int i = 0; i < KKTList.Controls.Count; i++)
+				{
+				Label l = (Label)KKTList.Controls[i];
+
+				l.AutoSize = false;
+				l.MaximumSize = l.MinimumSize = new Size (KKTList.Width - 6 -
+					(KKTList.VerticalScroll.Visible ? 18 : 0), 0);
+				l.AutoSize = true;
 				}
 
 			// Прочее
@@ -344,8 +382,9 @@ namespace RD_AAOW
 			// Загрузка описания
 			KKTList_LabelClicked (null, null);
 
-			if (kl.ItemsCount > 0)
-				KKTList.ScrollControlIntoView (KKTList.Controls[(int)selectedIndex]);
+			int idx = (int)(selectedIndex % itemsPerPage);
+			if ((kl.ItemsCount > 0) && (idx < KKTList.Controls.Count))
+				KKTList.ScrollControlIntoView (KKTList.Controls[idx]);
 			}
 
 		// Выбор ККТ в списке
@@ -358,14 +397,14 @@ namespace RD_AAOW
 				if (idx < 0)
 					return;
 				else
-					selectedIndex = (uint)idx;
+					selectedIndex = (uint)idx + currentPage * itemsPerPage;
 				}
 
 			// Обновление стиля
-			for (int i = 0; i < kl.ItemsCount; i++)
+			for (uint i = currentPage * itemsPerPage; (i < (currentPage + 1) * itemsPerPage) && (i < kl.ItemsCount); i++)
 				{
-				((Label)KKTList.Controls[i]).BorderStyle = (i == selectedIndex) ? BorderStyle.FixedSingle :
-					BorderStyle.None;
+				((Label)KKTList.Controls[(int)(i % itemsPerPage)]).BorderStyle = (i == selectedIndex) ?
+					BorderStyle.FixedSingle : BorderStyle.None;
 				}
 
 			// Загрузка состояния
@@ -520,8 +559,14 @@ namespace RD_AAOW
 
 			// Успешно
 			selectedIndex = (uint)idx;
+			uint oldPage = currentPage;
+			currentPage = selectedIndex / itemsPerPage;
+
+			if (oldPage != currentPage)
+				ReloadList ();
+
 			KKTList_LabelClicked (null, null);
-			KKTList.ScrollControlIntoView (KKTList.Controls[(int)selectedIndex]);
+			KKTList.ScrollControlIntoView (KKTList.Controls[(int)(selectedIndex % itemsPerPage)]);
 			}
 
 		private void SearchField_KeyDown (object sender, KeyEventArgs e)
@@ -585,6 +630,47 @@ namespace RD_AAOW
 			kl.Dispose ();
 			kl = new KAECList ();
 			ReloadList ();
+			}
+
+		// Движение по страницам
+		private void GoToFirstPage_Click (object sender, EventArgs e)
+			{
+			currentPage = 0;
+			ReloadList ();
+			}
+
+		private void GoToPreviousPage_Click (object sender, EventArgs e)
+			{
+			if (currentPage > 0)
+				currentPage--;
+
+			ReloadList ();
+			}
+
+		private void GoToNextPage_Click (object sender, EventArgs e)
+			{
+			if (currentPage < PagesCount - 1)
+				currentPage++;
+
+			ReloadList ();
+			}
+
+		private void GoToLastPage_Click (object sender, EventArgs e)
+			{
+			currentPage = PagesCount - 1;
+			ReloadList ();
+			}
+
+		private uint PagesCount
+			{
+			get
+				{
+				uint pagesCount = kl.ItemsCount / itemsPerPage;
+				if (kl.ItemsCount % itemsPerPage != 0)
+					pagesCount++;
+
+				return pagesCount;
+				}
 			}
 		}
 	}
